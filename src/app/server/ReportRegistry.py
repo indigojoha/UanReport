@@ -36,20 +36,24 @@ class ReportRegistry:
 			del self.reports[report_id]
 
 	def load_json(self):
-		with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
-			data = json.load(file)
-			for report_id, report_data in data.items():
-				report = Report(
-					report_data['reporter'],
-					report_data['reported'],
-					report_data['reason'],
-					report_data['date'],
-					report_data['teams'],
-				)
-				report.resolution = report_data.get('resolution', '')
-				self.add(report_id, report)
-			file.close()
-	
+		try:
+			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
+				data = json.load(file)
+				for report_id, report_data in data.items():
+					report = Report(
+						report_data['reporter'],
+						report_data['reported'],
+						report_data['reason'],
+						report_data['date'],
+						report_data['teams'],
+					)
+					report.resolution = report_data.get('resolution', '')
+					self.add(report_id, report)
+				file.close()
+		except FileNotFoundError:
+			print(f"File {self.JSON_PATH} not found. Using empty report registry.")
+			self.reports = {}
+
 	def save_json(self):
 		data = {report_id: report.to_dict() for report_id, report in self.reports.items()}
 

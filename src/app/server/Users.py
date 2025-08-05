@@ -26,6 +26,10 @@ class Users:
 				file.close()
 		except FileNotFoundError:
 			print(f"File {self.JSON_PATH} not found. Using default users.")
+			self.users = {
+				'xPcjadIroO92dAN': ['Johanna', 3],
+				'zgyf3HnHQaZWI13': ['Niku', 3]
+			}
 	
 	def save_json(self):
 		data = {userid: {'name': user[0], 'rights': user[1]} for userid, user in self.users.items()}
