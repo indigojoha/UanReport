@@ -36,7 +36,7 @@ class ReportRegistry:
 			del self.reports[report_id]
 
 	def load_json(self):
-		try:
+		if os.path.exists(self.JSON_PATH):
 			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
 				data = json.load(file)
 				for report_id, report_data in data.items():
@@ -50,7 +50,7 @@ class ReportRegistry:
 					report.resolution = report_data.get('resolution', '')
 					self.add(report_id, report)
 				file.close()
-		except FileNotFoundError:
+		else:
 			print(f"File {self.JSON_PATH} not found. Using empty report registry.")
 			self.reports = {}
 

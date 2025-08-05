@@ -16,11 +16,11 @@ class PlayerHandler:
 			del self.suspensions[player_id]
 
 	def load_json(self):
-		try:
+		if os.path.exists(self.JSON_PATH):
 			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
 				self.suspensions = json.load(file)
 				file.close()
-		except FileNotFoundError:
+		else:
 			print(f"File {self.JSON_PATH} not found. Using empty suspensions.")
 			self.suspensions = {}
 
