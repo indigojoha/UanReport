@@ -1,3 +1,4 @@
+from app.server.Paths import Paths
 import os
 import json
 from datetime import date
@@ -16,6 +17,8 @@ class PlayerHandler:
 			del self.suspensions[player_id]
 
 	def load_json(self):
+		Paths.ensure_directories(self.JSON_PATH)
+
 		if os.path.exists(self.JSON_PATH):
 			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
 				self.suspensions = json.load(file)
@@ -25,6 +28,8 @@ class PlayerHandler:
 			self.suspensions = {}
 
 	def save_json(self):
+		Paths.ensure_directories(self.JSON_PATH)
+
 		with open(self.JSON_PATH, 'w', encoding='utf-8') as file:
 			json.dump(self.suspensions, file, indent=4)
 			file.flush()
