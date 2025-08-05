@@ -1,5 +1,6 @@
 import os
 import json
+from app.server.Paths import Paths
 
 class Users:
 	def __init__(self):
@@ -19,6 +20,8 @@ class Users:
 		return -1
 
 	def load_json(self):
+		Paths.ensure_directories(self.JSON_PATH)
+
 		if os.path.exists(self.JSON_PATH):
 			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
 				data = json.load(file)
@@ -32,6 +35,8 @@ class Users:
 			}
 	
 	def save_json(self):
+		Paths.ensure_directories(self.JSON_PATH)
+
 		data = {userid: {'name': user[0], 'rights': user[1]} for userid, user in self.users.items()}
 
 		with open(self.JSON_PATH, 'w', encoding='utf-8') as file:
