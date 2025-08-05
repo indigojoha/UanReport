@@ -1,6 +1,5 @@
 import os
 import json
-from app.server.Paths import Paths
 
 class Report:
 	def __init__(self, reporter, reported, reason, date, teams):
@@ -37,8 +36,6 @@ class ReportRegistry:
 			del self.reports[report_id]
 
 	def load_json(self):
-		Paths.ensure_directories(self.JSON_PATH)
-
 		if os.path.exists(self.JSON_PATH):
 			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
 				data = json.load(file)
@@ -58,8 +55,6 @@ class ReportRegistry:
 			self.reports = {}
 
 	def save_json(self):
-		Paths.ensure_directories(self.JSON_PATH)
-
 		data = {report_id: report.to_dict() for report_id, report in self.reports.items()}
 
 		with open(self.JSON_PATH, 'w', encoding='utf-8') as file:
