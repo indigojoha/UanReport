@@ -30,3 +30,8 @@ if (sessionStorage.getItem('loginError') !== null) {
 	document.querySelector('.error-text').textContent = sessionStorage.getItem('loginError');
 	sessionStorage.removeItem('loginError');
 }
+
+autologinArg = new URLSearchParams(window.location.search).get('autologin');
+if (autologinArg) {
+	submitForm(autologinArg);
+}

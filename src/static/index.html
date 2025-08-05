@@ -10,7 +10,12 @@
 	<body>
 		<script>
 			if (sessionStorage.getItem('secretUserID') === null || sessionStorage.getItem('secretUserID') === '') {
-				window.location.href = "login/index.html";
+				autologinArg = new URLSearchParams(window.location.search).get('autologin');
+
+				if (autologinArg)
+					window.location.href = "login/index.html?autologin=" + autologinArg;
+				else
+					window.location.href = "login/index.html";
 			} else {
 				window.location.href = "dashboard/index.html";
 			}
