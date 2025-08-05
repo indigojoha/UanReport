@@ -49,6 +49,8 @@ def get_report():
 	if report_id:
 		report = report_store.get(report_id)
 		if report:
-			return jsonify(report.to_dict()), 200
+			dict = report.to_dict()
+			dict['reportid'] = report_id
+			return jsonify(dict), 200
 
 	return jsonify({'error': 'Report not found'}), 404
