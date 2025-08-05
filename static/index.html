@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>UanReport Service</title>
+	</head>
+
+	<body>
+		<script>
+			if (sessionStorage.getItem('secretUserID') === null || sessionStorage.getItem('secretUserID') === '') {
+				window.location.href = "login/index.html";
+			} else {
+				window.location.href = "dashboard/index.html";
+			}
+		</script>
+	</body>
+</html>

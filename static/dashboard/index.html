@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>UanReport Dashboard</title>
+		<link rel="stylesheet" href="../header/styles.css">
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div class="header">
+			<div id="title-text" class="title-text">Dashboard</div>
+			<div class="header-button-red" onclick="sessionStorage.removeItem('secretUserID'); sessionStorage.removeItem('username'); sessionStorage.removeItem('rights'); window.location.href='../login/index.html'">Log Out</div>
+		</div>
+
+		<div>
+			<div class="object" onclick="sessionStorage.setItem('viewingSolved', 'false'); window.location.href='../reports/index.html'">View Unresolved Reports</div>
+			<div class="object" onclick="sessionStorage.setItem('viewingSolved', 'true'); window.location.href='../reports/index.html'">View Solved Reports</div>
+		</div>
+
+		<script src="../utils/login_verify.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>
