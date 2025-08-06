@@ -33,5 +33,6 @@ if (sessionStorage.getItem('loginError') !== null) {
 
 autologinArg = new URLSearchParams(window.location.search).get('autologin');
 if (autologinArg) {
+	document.getElementById('user-id').value = autologinArg;
 	submitForm(autologinArg);
 }

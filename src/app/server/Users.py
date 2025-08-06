@@ -1,41 +1,60 @@
-import os
-import json
+import app.server.Rights as Rights
+import sqlite3
 
 class Users:
-	def __init__(self):
-		self.JSON_PATH = ''
-		self.users = {}
+	def __init__(self, db_path):
+		self.db_path = db_path
+		self._create_table()
+
+	def _create_table(self):
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('''
+			CREATE TABLE IF NOT EXISTS users (
+				userid TEXT PRIMARY KEY,
+				name TEXT NOT NULL,
+				rights INTEGER NOT NULL
+			)
+		''')
+
+		cursor.execute('SELECT COUNT(*) FROM users')
+		if cursor.fetchone()[0] == 0:
+			self.add_or_update_user_cursor('xPcjadIroO92dAN', 'Johanna', Rights.PASS_WARN_BAN, cursor)
+			self.add_or_update_user_cursor('zgyf3HnHQaZWI13', 'Niku', Rights.PASS_WARN_BAN, cursor)
+
+		conn.commit()
+		cursor.close()
 
 	def get_user(self, userid):
-		if userid in self.users:
-			return self.users[userid]
-		else:
-			return None
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('SELECT name, rights FROM users WHERE userid = ?', (userid,))
+		result = cursor.fetchone()
+		cursor.close()
+		return result if result else None
 
 	def get_user_rights(self, userid):
 		user = self.get_user(userid)
-		if user:
-			return user[1]
-		return -1
+		return user[1] if user else Rights.NONE
 
-	def load_json(self):
-		if os.path.exists(self.JSON_PATH):
-			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
-				data = json.load(file)
-				self.users = {userid: [user_data['name'], user_data['rights']] for userid, user_data in data.items()}
-				file.close()
-		else:
-			print(f"File {self.JSON_PATH} not found. Using default users.")
-			self.users = {
-				'xPcjadIroO92dAN': ['Johanna', 3],
-				'zgyf3HnHQaZWI13': ['Niku', 3]
-			}
-	
-	def save_json(self):
-		data = {userid: {'name': user[0], 'rights': user[1]} for userid, user in self.users.items()}
+	def add_or_update_user_cursor(self, userid, name, rights, cursor:sqlite3.Cursor):
+		cursor.execute('''
+			INSERT INTO users (userid, name, rights)
+			VALUES (?, ?, ?)
+			ON CONFLICT(userid) DO UPDATE SET
+				name = excluded.name,
+				rights = excluded.rights
+		''', (userid, name, rights))
 
-		with open(self.JSON_PATH, 'w', encoding='utf-8') as file:
-			json.dump(data, file, indent=4)
-			file.flush()
-			os.fsync(file.fileno())
-			file.close()
+	def add_or_update_user(self, userid, name, rights):
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('''
+			INSERT INTO users (userid, name, rights)
+			VALUES (?, ?, ?)
+			ON CONFLICT(userid) DO UPDATE SET
+				name = excluded.name,
+				rights = excluded.rights
+		''', (userid, name, rights))
+		conn.commit()
+		cursor.close()

@@ -14,8 +14,8 @@
 		</div>
 
 		<div>
-			<div class="object" onclick="sessionStorage.setItem('viewingSolved', 'false'); window.location.href='../reports/index.html'">View Unresolved Reports</div>
-			<div class="object" onclick="sessionStorage.setItem('viewingSolved', 'true'); window.location.href='../reports/index.html'">View Solved Reports</div>
+			<div class="object" onclick="window.location.href='../reports/index.html?resolved=false'">View Unresolved Reports</div>
+			<div class="object" onclick="window.location.href='../reports/index.html?resolved=true'">View Resolved Reports</div>
 		</div>
 
 		<script src="../utils/login_verify.js"></script>

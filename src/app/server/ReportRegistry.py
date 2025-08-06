@@ -1,5 +1,5 @@
-import os
-import json
+import sqlite3
+from datetime import date
 
 class Report:
 	def __init__(self, reporter, reported, reason, date, teams):
@@ -7,9 +7,19 @@ class Report:
 		self.reported = reported
 		self.reason = reason
 		self.date = date
-		self.teams = teams
+		self.teams = teams # despite the name, it's a single string 
 		self.resolution = ''
-	
+
+	def to_tuple(self):
+		return (
+			self.reporter,
+			self.reported,
+			self.reason,
+			self.date,
+			self.teams,
+			self.resolution
+		)
+
 	def to_dict(self):
 		return {
 			'reporter': self.reporter,
@@ -21,44 +31,79 @@ class Report:
 		}
 
 class ReportRegistry:
-	def __init__(self):
-		self.JSON_PATH = ''
-		self.reports = {}
+	def __init__(self, db_path):
+		self.db_path = db_path
+		self._create_table()
 
-	def add(self, report_id, report):
-		self.reports[report_id] = report
+	def _create_table(self):
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('''
+			CREATE TABLE IF NOT EXISTS reports (
+				report_id TEXT PRIMARY KEY,
+				reporter TEXT NOT NULL,
+				reported TEXT NOT NULL,
+				reason TEXT NOT NULL,
+				date TEXT NOT NULL,
+				teams TEXT NOT NULL,
+				resolution TEXT
+			)
+		''')
+		conn.commit()
+		cursor.close()
+
+	def add(self, report_id, report: Report):
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('''
+			INSERT INTO reports (report_id, reporter, reported, reason, date, teams, resolution)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+			ON CONFLICT(report_id) DO UPDATE SET
+				reporter = excluded.reporter,
+				reported = excluded.reported,
+				reason = excluded.reason,
+				date = excluded.date,
+				teams = excluded.teams,
+				resolution = excluded.resolution
+		''', (report_id, *report.to_tuple()))
+		conn.commit()
+		cursor.close()
 
 	def get(self, report_id) -> Report:
-		return self.reports.get(report_id)
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('''
+			SELECT reporter, reported, reason, date, teams, resolution
+			FROM reports WHERE report_id = ?
+		''', (report_id,))
+		row = cursor.fetchone()
+		cursor.close()
+
+		if row:
+			report = Report(row[0], row[1], row[2], row[3], row[4])
+			report.resolution = row[5]
+			return report
+		return None
 
 	def remove(self, report_id):
-		if report_id in self.reports:
-			del self.reports[report_id]
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('DELETE FROM reports WHERE report_id = ?', (report_id,))
+		conn.commit()
+		cursor.close()
 
-	def load_json(self):
-		if os.path.exists(self.JSON_PATH):
-			with open(self.JSON_PATH, 'r', encoding='utf-8') as file:
-				data = json.load(file)
-				for report_id, report_data in data.items():
-					report = Report(
-						report_data['reporter'],
-						report_data['reported'],
-						report_data['reason'],
-						report_data['date'],
-						report_data['teams'],
-					)
-					report.resolution = report_data.get('resolution', '')
-					self.add(report_id, report)
-				file.close()
-		else:
-			print(f"File {self.JSON_PATH} not found. Using empty report registry.")
-			self.reports = {}
+	def list_all(self):
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('''
+			SELECT report_id, reporter, reported, reason, date, teams, resolution
+			FROM reports
+		''')
+		rows = cursor.fetchall()
+		cursor.close()
 
-	def save_json(self):
-		data = {report_id: report.to_dict() for report_id, report in self.reports.items()}
+		reports = []
+		for row in rows:
+			reports.append(row[0])
 
-		with open(self.JSON_PATH, 'w', encoding='utf-8') as file:
-			json.dump(data, file, indent=4)
-			file.flush()
-			os.fsync(file.fileno())
-			file.close()
+		return reports

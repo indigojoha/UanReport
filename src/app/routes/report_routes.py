@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services import REPORTS, SOLVED
+from app.services import REPORTS, RESOLVED
 from app.utils.helpers import verify_user
 from app.server.ReportRegistry import Report
 import hashlib
@@ -34,8 +34,8 @@ def get_report_list():
 		return jsonify({'error': 'Invalid user ID'}), 403
 
 	resolved = request.args.get('resolved', 'false').lower() == 'true'
-	report_store = SOLVED if resolved else REPORTS
-	return jsonify(list(report_store.reports.keys())), 200
+	report_store = RESOLVED if resolved else REPORTS
+	return jsonify(list(report_store.list_all())), 200
 
 @report_bp.route('/get_report', methods=['GET'])
 def get_report():
@@ -44,7 +44,7 @@ def get_report():
 
 	report_id = request.args.get('reportid')
 	resolved = request.args.get('resolved', 'false').lower() == 'true'
-	report_store = SOLVED if resolved else REPORTS
+	report_store = RESOLVED if resolved else REPORTS
 
 	if report_id:
 		report = report_store.get(report_id)

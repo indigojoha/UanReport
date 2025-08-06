@@ -23,10 +23,11 @@ const LOCALE = {
 	BAN_BUTTON: 'Ban',
 }
 
-const VIEWING_SOLVED = sessionStorage.getItem('viewingSolved') === 'true' || false;
+parameters = new URLSearchParams(window.location.search);
+const VIEWING_RESOLVED = parameters.get('resolved') === 'true' || false;
 
-if (VIEWING_SOLVED)
-	document.getElementById('title-text').textContent = 'Solved Reports';
+if (VIEWING_RESOLVED)
+	document.getElementById('title-text').textContent = 'Resolved Reports';
 else
 	document.getElementById('title-text').textContent = 'Unresolved Reports';
 
@@ -38,7 +39,7 @@ function createObject(data) {
 	const obj = document.createElement('div');
 	obj.className = 'object';
 	obj.textContent = data.date + ' > ' + data.reason;
-	if (VIEWING_SOLVED) {
+	if (VIEWING_RESOLVED) {
 		switch (data.resolution) {
 			case "pass":
 				obj.textContent = '[Passed] ' + obj.textContent;
@@ -64,7 +65,7 @@ function createObject(data) {
 	const dropdownText = document.createElement('div');
 	dropdownText.className = 'dropdown-text';
 	dropdownText.textContent = 'Reporter: ' + rusername + '\nReported: ' + dusername + '\nReason: ' + data.reason;
-	if (VIEWING_SOLVED)
+	if (VIEWING_RESOLVED)
 		dropdownText.textContent += '\nResolution: ' + (data.resolution || 'Unknown resolution');
 
 	const seeTeamBtn = document.createElement('button');
@@ -92,7 +93,7 @@ function createObject(data) {
 	const buttonContainer = document.createElement('div');
 	buttonContainer.className = 'dropdown-buttons';
 
-	if (!VIEWING_SOLVED && RIGHTS > 0)
+	if (!VIEWING_RESOLVED && RIGHTS > 0)
 		for (let i = 1; i <= RIGHTS + 1; i++) {
 			const btn = document.createElement('button');
 			btn.className = 'dropdown-btn';
@@ -169,7 +170,7 @@ function createObject(data) {
 	container.appendChild(obj);
 }
 
-fetch('/api/get_report_list?userid=' + sessionStorage.getItem('secretUserID') + '&resolved=' + VIEWING_SOLVED)
+fetch('/api/get_report_list?userid=' + sessionStorage.getItem('secretUserID') + '&resolved=' + VIEWING_RESOLVED)
 .then(response => {
 	if (!response.ok) {
 		throw new Error('Failed to fetch report list');
@@ -181,7 +182,7 @@ fetch('/api/get_report_list?userid=' + sessionStorage.getItem('secretUserID') + 
 		document.getElementById('no-reports').style.display = 'block';
 	} else {
 		list.forEach(id => {
-			fetch(`/api/get_report?userid=${sessionStorage.getItem('secretUserID')}&reportid=${id}&resolved=${VIEWING_SOLVED}`)
+			fetch(`/api/get_report?userid=${sessionStorage.getItem('secretUserID')}&reportid=${id}&resolved=${VIEWING_RESOLVED}`)
 			.then(response => {
 				if (!response.ok) {
 					throw new Error('Failed to fetch report');

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services import USERS, REPORTS, SOLVED, PHANDLER
+from app.services import USERS, REPORTS, RESOLVED, PHANDLER
 from app.utils.helpers import verify_user
 from app.server.ReportRegistry import Report
 
@@ -56,10 +56,10 @@ def take_action():
 	else:
 		return jsonify({'error': 'Invalid action code'}), 400
 
-	SOLVED.add(reportID, report)
+	RESOLVED.add(reportID, report)
 	REPORTS.remove(reportID)
 
 	REPORTS.save_json()
-	SOLVED.save_json()
+	RESOLVED.save_json()
 
 	return '', 204

@@ -1,0 +1,4 @@
+NONE = 0
+VIEW = 1
+PASS_WARN = 2
+PASS_WARN_BAN = 3
