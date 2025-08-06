@@ -46,20 +46,15 @@ def take_action():
 			return jsonify({'error': 'Missing suspension duration'}), 400
 		PHANDLER.suspend_player(report.reported, extra['days'], report.reason)
 		report.resolution = 'suspend'
-		PHANDLER.save_json()
 
 	elif action == 3: # ban 
 		PHANDLER.suspend_player(report.reported, None, report.reason)
 		report.resolution = 'ban'
-		PHANDLER.save_json()
 
 	else:
 		return jsonify({'error': 'Invalid action code'}), 400
 
 	RESOLVED.add(reportID, report)
 	REPORTS.remove(reportID)
-
-	REPORTS.save_json()
-	RESOLVED.save_json()
 
 	return '', 204

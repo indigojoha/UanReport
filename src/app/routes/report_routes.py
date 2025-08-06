@@ -23,7 +23,6 @@ def submit_report():
 
 		report = Report(reporter, reported, reason, date, teams)
 		REPORTS.add(report_id, report)
-		REPORTS.save_json()
 		return jsonify({'report_id': report_id}), 201
 
 	return jsonify({'error': 'Invalid report data'}), 400
