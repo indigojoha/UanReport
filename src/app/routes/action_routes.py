@@ -2,8 +2,17 @@ from flask import Blueprint, request, jsonify
 from app.services import USERS, REPORTS, RESOLVED, PHANDLER
 from app.utils.helpers import verify_user
 from app.server.ReportRegistry import Report
+import re
 
 action_bp = Blueprint('action', __name__, url_prefix='/api')
+
+# format: name (id)
+def parse_name(name: str):
+	match = re.match(r'^(.*)\s+\((\d+)\)$', name)
+	if match:
+		text, number = match.groups()
+		return text.strip(), int(number.strip())
+	return name, None
 
 @action_bp.route('/take_action', methods=['POST'])
 def take_action():
@@ -44,11 +53,19 @@ def take_action():
 	elif action == 2: # suspend 
 		if not extra or 'days' not in extra:
 			return jsonify({'error': 'Missing suspension duration'}), 400
-		PHANDLER.suspend_player(report.reported, extra['days'], report.reason)
+		handle, steamid = parse_name(report.reported)
+		if not steamid:
+			return jsonify({'error': 'Invalid reported player ID'}), 400
+
+		PHANDLER.suspend_player(steamid, extra['days'], report.reason)
 		report.resolution = 'suspend'
 
 	elif action == 3: # ban 
-		PHANDLER.suspend_player(report.reported, None, report.reason)
+		handle, steamid = parse_name(report.reported)
+		if not steamid:
+			return jsonify({'error': 'Invalid reported player ID'}), 400
+
+		PHANDLER.suspend_player(steamid, 0, report.reason)
 		report.resolution = 'ban'
 
 	else:
