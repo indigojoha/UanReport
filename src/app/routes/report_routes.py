@@ -1,3 +1,4 @@
+import app.server.Rights as Rights
 from flask import Blueprint, request, jsonify
 from app.services import REPORTS, RESOLVED
 from app.utils.helpers import verify_user
@@ -53,3 +54,17 @@ def get_report():
 			return jsonify(dict), 200
 
 	return jsonify({'error': 'Report not found'}), 404
+
+@report_bp.route('/wipe_reports', methods=['DELETE'])
+def wipe_reports():
+	if not verify_user(request.args.get('userid'), Rights.PASS_WARN_BAN):
+		return jsonify({'error': 'Invalid user ID'}), 403
+
+	resolved = request.args.get('resolved', 'false').lower() == 'true'
+
+	if resolved:
+		RESOLVED.clear()
+	else:
+		REPORTS.clear()
+
+	return jsonify({'status': 'success', 'message': 'All ' + ('resolved' if resolved else 'unresolved') + ' reports have been wiped.'}), 200

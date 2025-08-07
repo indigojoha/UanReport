@@ -92,6 +92,13 @@ class ReportRegistry:
 		conn.commit()
 		cursor.close()
 
+	def clear(self):
+		conn = sqlite3.connect(self.db_path)
+		cursor = conn.cursor()
+		cursor.execute('DELETE FROM reports')
+		conn.commit()
+		cursor.close()
+
 	def list_all(self):
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()

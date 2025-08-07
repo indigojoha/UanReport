@@ -187,7 +187,9 @@ fetch('/api/get_report_list?userid=' + sessionStorage.getItem('secretUserID') + 
 			fetch(`/api/get_report?userid=${sessionStorage.getItem('secretUserID')}&reportid=${id}&resolved=${VIEWING_RESOLVED}`)
 			.then(response => {
 				if (!response.ok) {
-					throw new Error('Failed to fetch report');
+					return response.json().then(data => {
+						throw new Error('Failed to fetch report: ' + data.error);
+					});
 				}
 				return response.json();
 			})
@@ -203,3 +205,46 @@ fetch('/api/get_report_list?userid=' + sessionStorage.getItem('secretUserID') + 
 .catch(error => {
 	console.error('Error fetching report list:', error);
 });
+
+function wipeReports() {
+	const okay = window.confirm("Are you sure you want to wipe all reports?");
+
+	if (okay) {
+		fetch(`/api/wipe_reports?userid=${sessionStorage.getItem('secretUserID')}&resolved=${VIEWING_RESOLVED}`, {
+			method: 'DELETE'
+		})
+		.then(response => {
+			if (!response.ok) {
+				return response.json().then(data => {
+					throw new Error('Failed to wipe reports: ' + data.error);
+				});
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log('Reports wiped successfully:', data);
+			container.innerHTML = '';
+		})
+		.catch(error => {
+			console.error('Error wiping reports:', error);
+		});
+	}
+}
+
+function addDummyReport() {
+	const dummyData = {
+		reporter: 'DummyReporter (696969)',
+		reported: 'DummyReported (420420)',
+		reason: "Inappropriate nickname",
+		date: new Date().toISOString(),
+		teams: 'DummyTeam1\n\n\nDummyTeam2'
+	};
+
+	fetch('/api/submit_report', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(dummyData)
+	});
+}

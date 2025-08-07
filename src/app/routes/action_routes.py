@@ -39,7 +39,7 @@ def take_action():
 	}
 
 	if action not in required_rights:
-		return jsonify({'error': 'Invalid action code'}), 400
+		return jsonify({'error': 'Invalid action code "' + str(action) + '"'}), 400
 
 	if USERS.get_user_rights(request.args.get('userid')) < required_rights[action]:
 		return jsonify({'error': 'Insufficient rights for this action'}), 403
@@ -55,7 +55,7 @@ def take_action():
 			return jsonify({'error': 'Missing suspension duration'}), 400
 		handle, steamid = parse_name(report.reported)
 		if not steamid:
-			return jsonify({'error': 'Invalid reported player ID'}), 400
+			return jsonify({'error': 'Invalid reported player ID. "' + report.reported + '"'}), 400
 
 		PHANDLER.suspend_player(steamid, extra['days'], report.reason)
 		report.resolution = 'suspend'
@@ -63,13 +63,10 @@ def take_action():
 	elif action == 3: # ban 
 		handle, steamid = parse_name(report.reported)
 		if not steamid:
-			return jsonify({'error': 'Invalid reported player ID'}), 400
+			return jsonify({'error': 'Invalid reported player ID. "' + report.reported + '"'}), 400
 
 		PHANDLER.suspend_player(steamid, 0, report.reason)
 		report.resolution = 'ban'
-
-	else:
-		return jsonify({'error': 'Invalid action code'}), 400
 
 	RESOLVED.add(reportID, report)
 	REPORTS.remove(reportID)
