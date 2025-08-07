@@ -1,10 +1,10 @@
 import app.server.Rights as Rights
 from flask import Blueprint, request, jsonify
-from app.services import REPORTS, RESOLVED
+from app.services import PHANDLER, REPORTS, RESOLVED
 from app.utils.helpers import verify_user
 from app.server.ReportRegistry import Report
 import hashlib
-from datetime import datetime
+from datetime import datetime, date
 
 report_bp = Blueprint('report', __name__, url_prefix='/api')
 
@@ -51,6 +51,13 @@ def get_report():
 		if report:
 			dict = report.to_dict()
 			dict['reportid'] = report_id
+			dict['extra'] = {}
+			if report.resolution == 'suspend':
+				suspension = PHANDLER.get_suspension(report.reported)
+				suspended_date = datetime.fromisoformat(suspension['date']).date()
+				days_passed = (date.today() - suspended_date).days
+				dict['extra']['days'] = suspension['days']
+				dict['extra']['days_left'] = suspension['days'] - days_passed
 			return jsonify(dict), 200
 
 	return jsonify({'error': 'Report not found'}), 404

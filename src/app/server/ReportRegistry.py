@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import date
 
 class Report:
 	def __init__(self, reporter, reported, reason, date, teams):
@@ -9,7 +8,6 @@ class Report:
 		self.date = date
 		self.teams = teams # despite the name, it's a single string 
 		self.resolution = ''
-		self.days = 0
 
 	def to_tuple(self):
 		return (
@@ -18,8 +16,7 @@ class Report:
 			self.reason,
 			self.date,
 			self.teams,
-			self.resolution,
-			self.days
+			self.resolution
 		)
 
 	def to_dict(self):
@@ -29,8 +26,7 @@ class Report:
 			'reason': self.reason,
 			'date': self.date,
 			'teams': self.teams,
-			'resolution': self.resolution,
-			'days': self.days
+			'resolution': self.resolution
 		}
 
 class ReportRegistry:
@@ -49,8 +45,7 @@ class ReportRegistry:
 				reason TEXT NOT NULL,
 				date TEXT NOT NULL,
 				teams TEXT NOT NULL,
-				resolution TEXT,
-				days INTEGER DEFAULT 0
+				resolution TEXT
 			)
 		''')
 		conn.commit()
@@ -60,16 +55,15 @@ class ReportRegistry:
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()
 		cursor.execute('''
-			INSERT INTO reports (report_id, reporter, reported, reason, date, teams, resolution, days)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO reports (report_id, reporter, reported, reason, date, teams, resolution)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
 			ON CONFLICT(report_id) DO UPDATE SET
 				reporter = excluded.reporter,
 				reported = excluded.reported,
 				reason = excluded.reason,
 				date = excluded.date,
 				teams = excluded.teams,
-				resolution = excluded.resolution,
-				days = excluded.days
+				resolution = excluded.resolution
 		''', (report_id, *report.to_tuple()))
 		conn.commit()
 		cursor.close()
@@ -78,7 +72,7 @@ class ReportRegistry:
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()
 		cursor.execute('''
-			SELECT reporter, reported, reason, date, teams, resolution, days
+			SELECT reporter, reported, reason, date, teams, resolution
 			FROM reports WHERE report_id = ?
 		''', (report_id,))
 		row = cursor.fetchone()

@@ -59,7 +59,6 @@ def take_action():
 
 		PHANDLER.suspend_player(steamid, extra['days'], report.reason)
 		report.resolution = 'suspend'
-		report.days = extra['days']
 
 	elif action == 3: # ban 
 		handle, steamid = parse_name(report.reported)

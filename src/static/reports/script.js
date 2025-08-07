@@ -4,15 +4,12 @@ const container = document.getElementById('container');
 const RIGHTS = sessionStorage.getItem('rights') ? parseInt(sessionStorage.getItem('rights')) : 0;
 
 // there is no in-game chat, so no need for the commented ones 
-const reasons = [
-	'Inappropriate nickname',
-	'Cheating',
-	'Cheating > Invalid moves',
-	'Cheating > Invalid ability',
-	'Cheating > Invalid item',
-	// 'Spamming',
-	// 'Harassment',
-]
+const REASONS = {
+	'cheating': 'Cheating',
+	'cheating_ability': 'Cheating > Invalid ability',
+	'cheating_moves': 'Cheating > Invalid moves',
+	'inappropriate_nickname': 'Inappropriate nickname',
+}
 
 const LOCALE = {
 	SEE_TEAMS_BUTTON: 'See teams',
@@ -38,7 +35,7 @@ function createObject(data) {
 
 	const obj = document.createElement('div');
 	obj.className = 'object';
-	obj.textContent = data.date + ' > ' + data.reason;
+	obj.textContent = data.date + ' > ' + REASONS[data.reason];
 
 	let resolutionText = 'Unknown resolution';
 	if (VIEWING_RESOLVED) {
@@ -51,8 +48,8 @@ function createObject(data) {
 				obj.textContent = '[Warned] ' + obj.textContent;
 				break;
 			case "suspend":
-				obj.textContent = '[Suspended for ' + data.days + ' days] ' + obj.textContent;
-				resolutionText += ' (' + data.days + ' days)';
+				obj.textContent = '[Suspended for ' + data.extra.days + ' days] ' + obj.textContent;
+				resolutionText += ' (' + data.extra.days + ' days, ' + data.extra.days_left + ' left)';
 				break;
 			case "ban":
 				obj.textContent = '[Banned] ' + obj.textContent;
@@ -68,9 +65,9 @@ function createObject(data) {
 
 	const dropdownText = document.createElement('div');
 	dropdownText.className = 'dropdown-text';
-	dropdownText.textContent = 'Reporter: ' + rusername + '\nReported: ' + dusername + '\nReason: ' + data.reason;
+	dropdownText.textContent = 'Reporter: ' + rusername + '\nReported: ' + dusername + '\nReason: ' + REASONS[data.reason];
 	if (VIEWING_RESOLVED)
-		dropdownText.textContent += '\nResolution: ' + (data.resolution || 'Unknown resolution');
+		dropdownText.textContent += '\nResolution: ' + resolutionText;
 
 	const seeTeamBtn = document.createElement('button');
 	seeTeamBtn.style.marginTop = '36px';
