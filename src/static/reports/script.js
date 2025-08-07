@@ -48,7 +48,7 @@ function createObject(data) {
 				obj.textContent = '[Warned] ' + obj.textContent;
 				break;
 			case "suspend":
-				obj.textContent = '[Suspended (' + data.extra.days + 'd)] ' + obj.textContent;
+				obj.textContent = '[Suspended (' + data.days + 'd)] ' + obj.textContent;
 				break;
 			case "ban":
 				obj.textContent = '[Banned] ' + obj.textContent;

@@ -9,6 +9,7 @@ class Report:
 		self.date = date
 		self.teams = teams # despite the name, it's a single string 
 		self.resolution = ''
+		self.days = 0
 
 	def to_tuple(self):
 		return (
@@ -17,7 +18,8 @@ class Report:
 			self.reason,
 			self.date,
 			self.teams,
-			self.resolution
+			self.resolution,
+			self.days
 		)
 
 	def to_dict(self):
@@ -27,7 +29,8 @@ class Report:
 			'reason': self.reason,
 			'date': self.date,
 			'teams': self.teams,
-			'resolution': self.resolution
+			'resolution': self.resolution,
+			'days': self.days
 		}
 
 class ReportRegistry:
@@ -46,7 +49,8 @@ class ReportRegistry:
 				reason TEXT NOT NULL,
 				date TEXT NOT NULL,
 				teams TEXT NOT NULL,
-				resolution TEXT
+				resolution TEXT,
+				days INTEGER DEFAULT 0
 			)
 		''')
 		conn.commit()
@@ -56,15 +60,16 @@ class ReportRegistry:
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()
 		cursor.execute('''
-			INSERT INTO reports (report_id, reporter, reported, reason, date, teams, resolution)
-			VALUES (?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO reports (report_id, reporter, reported, reason, date, teams, resolution, days)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 			ON CONFLICT(report_id) DO UPDATE SET
 				reporter = excluded.reporter,
 				reported = excluded.reported,
 				reason = excluded.reason,
 				date = excluded.date,
 				teams = excluded.teams,
-				resolution = excluded.resolution
+				resolution = excluded.resolution,
+				days = excluded.days
 		''', (report_id, *report.to_tuple()))
 		conn.commit()
 		cursor.close()
@@ -73,7 +78,7 @@ class ReportRegistry:
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()
 		cursor.execute('''
-			SELECT reporter, reported, reason, date, teams, resolution
+			SELECT reporter, reported, reason, date, teams, resolution, days
 			FROM reports WHERE report_id = ?
 		''', (report_id,))
 		row = cursor.fetchone()
@@ -82,6 +87,7 @@ class ReportRegistry:
 		if row:
 			report = Report(row[0], row[1], row[2], row[3], row[4])
 			report.resolution = row[5]
+			report.days = row[6]
 			return report
 		return None
 
@@ -103,7 +109,7 @@ class ReportRegistry:
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()
 		cursor.execute('''
-			SELECT report_id, reporter, reported, reason, date, teams, resolution
+			SELECT report_id, reporter, reported, reason, date, teams, resolution, days
 			FROM reports
 		''')
 		rows = cursor.fetchall()
