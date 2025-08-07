@@ -39,7 +39,10 @@ function createObject(data) {
 	const obj = document.createElement('div');
 	obj.className = 'object';
 	obj.textContent = data.date + ' > ' + data.reason;
+
+	let resolutionText = 'Unknown resolution';
 	if (VIEWING_RESOLVED) {
+		resolutionText = data.resolution || resolutionText;
 		switch (data.resolution) {
 			case "pass":
 				obj.textContent = '[Passed] ' + obj.textContent;
@@ -48,7 +51,8 @@ function createObject(data) {
 				obj.textContent = '[Warned] ' + obj.textContent;
 				break;
 			case "suspend":
-				obj.textContent = '[Suspended (' + data.days + 'd)] ' + obj.textContent;
+				obj.textContent = '[Suspended for ' + data.days + ' days] ' + obj.textContent;
+				resolutionText += ' (' + data.days + ' days)';
 				break;
 			case "ban":
 				obj.textContent = '[Banned] ' + obj.textContent;
