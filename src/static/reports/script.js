@@ -132,7 +132,7 @@ function createObject(data) {
 				})
 				.then(response => {
 					if (!response.ok) {
-						throw new Error('Failed to take action');
+						throw new Error('Failed to take action: ' + response.json().error);
 					} else {
 						container.removeChild(obj);
 						if (container.children.length === 0) {
