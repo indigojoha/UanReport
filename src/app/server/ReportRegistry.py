@@ -103,7 +103,7 @@ class ReportRegistry:
 		conn = sqlite3.connect(self.db_path)
 		cursor = conn.cursor()
 		cursor.execute('''
-			SELECT report_id, reporter, reported, reason, date, teams, resolution, days
+			SELECT report_id, reporter, reported, reason, date, teams, resolution
 			FROM reports
 		''')
 		rows = cursor.fetchall()
