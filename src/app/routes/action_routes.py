@@ -54,16 +54,16 @@ def take_action():
 		if not extra or 'days' not in extra:
 			return jsonify({'error': 'Missing suspension duration'}), 400
 		handle, steamid = parse_name(report.reported)
-		if not steamid:
-			return jsonify({'error': 'Invalid reported player ID. "' + report.reported + '"'}), 400
+		if steamid is None:
+			return jsonify({'error': 'Invalid reported player ID. "' + report.reported + '", "' + handle + '" #' + str(steamid)}), 400
 
 		PHANDLER.suspend_player(steamid, extra['days'], report.reason)
 		report.resolution = 'suspend'
 
 	elif action == 3: # ban 
 		handle, steamid = parse_name(report.reported)
-		if not steamid:
-			return jsonify({'error': 'Invalid reported player ID. "' + report.reported + '"'}), 400
+		if steamid is None:
+			return jsonify({'error': 'Invalid reported player ID. "' + report.reported + '", "' + handle + '" #' + str(steamid)}), 400
 
 		PHANDLER.suspend_player(steamid, 0, report.reason)
 		report.resolution = 'ban'

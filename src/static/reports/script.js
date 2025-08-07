@@ -224,6 +224,7 @@ function wipeReports() {
 		.then(data => {
 			console.log('Reports wiped successfully:', data);
 			container.innerHTML = '';
+			document.getElementById('no-reports').style.display = 'block';
 		})
 		.catch(error => {
 			console.error('Error wiping reports:', error);
